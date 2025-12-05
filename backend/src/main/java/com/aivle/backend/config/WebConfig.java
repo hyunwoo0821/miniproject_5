@@ -9,7 +9,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")                 // 어떤 URL 패턴에 CORS를 적용할지
+        registry.addMapping("/**")                 // 어떤 URL 패턴에 CORS를 적용할지
                 .allowedOrigins("http://localhost:5173") // 허용할 프론트 주소
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
                 .allowedHeaders("*")                    // 어떤 헤더를 허용할지
