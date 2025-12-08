@@ -1,6 +1,7 @@
 package com.aivle.backend.book.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import com.aivle.backend.user.entity.User;
@@ -36,6 +37,8 @@ public class Book {
     private String author;
 
     private String bookImageUrl;
+
+    private String writer; // 작성자 닉네임
 
     private LocalDateTime createdAt;
 

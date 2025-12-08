@@ -40,8 +40,8 @@ public class BookService {
                 .author(dto.getAuthor())
                 .category(dto.getCategory())
                 .content(dto.getContent())
+                .writer(user.getNickname()) // 작성자 닉네임 저장
                 .build();
-
         return bookRepository.save(book);
     }
 

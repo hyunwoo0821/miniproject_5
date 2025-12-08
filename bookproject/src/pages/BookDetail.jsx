@@ -145,7 +145,9 @@ export default function BookDetail() {
                       />
                       {book.dislikes}
 
-                      <PersonIcon sx={{ ml:2, opacity:0.7 }} /> {book.writer}
+                       <PersonIcon sx={{ ml:2, opacity:0.7 }} /> {book.writer}
+{/*                         <PersonIcon sx={{ ml:2, opacity:0.7 }} /> {book.user?.nickname} */}
+
                     </Box>
                 </Box>
             </Box>

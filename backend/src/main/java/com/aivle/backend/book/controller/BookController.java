@@ -2,8 +2,11 @@ package com.aivle.backend.book.controller;
 
 import com.aivle.backend.book.domain.Book;
 import com.aivle.backend.book.dto.BookRequestDto;
+import com.aivle.backend.book.repository.BookRepository;
 import com.aivle.backend.book.service.BookService;
 import com.aivle.backend.security.CustomUserDetails;
+import com.aivle.backend.user.entity.User;
+import com.aivle.backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +19,35 @@ import org.springframework.data.domain.Pageable;
 @RequiredArgsConstructor
 public class BookController {
     private final BookService bookService;
+    private final BookRepository bookRepository;
+    private final UserRepository userRepository;
 
     // 책 등록 - POST
     @PostMapping
     public Book insertBook(@RequestParam Long userId, @RequestBody BookRequestDto dto) {
         return bookService.insertBook(userId, dto);
     }
+
+//    public Book insertBook(Long userId, BookRequestDto dto) {
+//
+//        //  1. userId로 유저 조회
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+//
+//        //  2. Book 생성 시 닉네임 저장
+//        Book book = Book.builder()
+//                .bookTitle(dto.getBookTitle())
+//                .author(dto.getAuthor())
+//                .category(dto.getCategory())
+//                .content(dto.getContent())
+//                .bookImageUrl(dto.getBookImageUrl())
+//                .writer(user.getNickname()) // 작성자 닉네임 저장
+//                .user(user)                 // 연관관계 설정
+//                .build();
+//
+//        //  3. 저장 후 반환
+//        return bookRepository.save(book);
+//    }
 
     // 책 수정(PUT)
     @PutMapping("/{bookId}")
