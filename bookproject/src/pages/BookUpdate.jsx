@@ -120,22 +120,14 @@ export default function BookUpdate() {
                     <Typography fontSize={20} fontWeight={700} mt={1}>책 표지 URL</Typography>
                     <TextField fullWidth name="img" value={form.bookImageUrl} onChange={handleChange} sx={{mb:4}}/>
 
-                    {/* 🔥 OpenAI 키 입력 + 이미지 생성 버튼 */}
-                    <Typography fontSize={20} fontWeight={700}>API KEY (이미지 생성 옵션)</Typography>
-                    <TextField
-                        fullWidth
-                        placeholder="OpenAI API 키 입력"
-                        value={apiKey}
-                        onChange={(e)=>setApiKey(e.target.value)}
-                        sx={{mt:1, mb:2}}
-                    />
+                    
 
                     <Button
                         variant="outlined"
                         fullWidth
                         sx={{ py: 1.4, mb: 3 }}
                         onClick={() => {
-                            nav("/ai-book-cover", {
+                            nav("/book/update/ai-book-cover", {
                             state: {
                                 title: form.title,          // 현재 도서 제목
                                 content: form.content,      // 현재 도서 내용
