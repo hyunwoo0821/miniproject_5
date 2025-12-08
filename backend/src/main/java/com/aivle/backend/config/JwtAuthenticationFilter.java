@@ -1,6 +1,6 @@
 package com.aivle.backend.config;
 
-import com.aivle.backend.user.security.CustomUserDetailsService;
+import com.aivle.backend.security.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,26 +23,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final CustomUserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
+        // 1. 헤더에서 토큰 꺼내기
         String token = resolveToken(request);
 
-        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+        // 2. 토큰이 있고, 유효하면
+        if (token != null && jwtTokenProvider.validateToken(token)) {
+
+            // 3. 토큰에서 email 꺼내고
             String email = jwtTokenProvider.getEmailFromToken(token);
 
+            // 4. DB에서 유저 정보 로드
             var userDetails = userDetailsService.loadUserByUsername(email);
-            var authentication = new UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    userDetails.getAuthorities()
+
+            // 5. 스프링 시큐리티 Authentication 객체 생성
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+
+            authentication.setDetails(
+                    new WebAuthenticationDetailsSource().buildDetails(request)
             );
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+            // 6. SecurityContext에 등록
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
+        // 7. 다음 필터로 넘기기
         filterChain.doFilter(request, response);
     }
 

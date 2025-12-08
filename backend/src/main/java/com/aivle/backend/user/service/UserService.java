@@ -1,7 +1,10 @@
 package com.aivle.backend.user.service;
 
 import com.aivle.backend.config.JwtTokenProvider;
-import com.aivle.backend.user.dto.*;
+import com.aivle.backend.user.dto.LoginRequest;
+import com.aivle.backend.user.dto.LoginResponse;
+import com.aivle.backend.user.dto.SignupRequest;
+import com.aivle.backend.user.dto.UserResponse;
 import com.aivle.backend.user.entity.User;
 import com.aivle.backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +20,14 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
+    // 회원가입
     @Transactional
     public void signup(SignupRequest req) {
 
         if (userRepository.existsByEmail(req.getEmail())) {
             throw new RuntimeException("이미 사용 중인 이메일입니다.");
         }
+
         if (userRepository.existsByNickname(req.getNickname())) {
             throw new RuntimeException("이미 사용 중인 닉네임입니다.");
         }
@@ -37,6 +42,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+    // 로그인
     @Transactional
     public LoginResponse login(LoginRequest req) {
 
@@ -47,31 +53,60 @@ public class UserService {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
 
-        String access = jwtTokenProvider.createAccessToken(user.getEmail(), user.getRole().name());
-        String refresh = jwtTokenProvider.createRefreshToken();
+        // ⚠ 여기서 email, role 두 개 다 넘겨줘야 함
+        String access = jwtTokenProvider.createAccessToken(
+                user.getEmail(),
+                user.getRole().name()
+        );
+        String refresh = jwtTokenProvider.createRefreshToken(
+                user.getEmail(),
+                user.getRole().name()
+        );
 
-        user.setRefreshToken(refresh); // DB에 저장
+        // 리프레시 토큰을 DB에 저장
+        user.setRefreshToken(refresh);
+
         return new LoginResponse(access, refresh);
     }
 
+    // 리프레시 토큰으로 재발급
     @Transactional
     public LoginResponse reissue(String refreshToken) {
 
-        User user = userRepository.findByEmail(
-                        jwtTokenProvider.getEmailFromToken(refreshToken))
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-
-        if (!refreshToken.equals(user.getRefreshToken())) {
+        // 1. 토큰 형식 / 만료 체크
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
             throw new RuntimeException("유효하지 않은 리프레시 토큰입니다.");
         }
 
-        String newAccess = jwtTokenProvider.createAccessToken(user.getEmail(), user.getRole().name());
-        String newRefresh = jwtTokenProvider.createRefreshToken();
+        // 2. 토큰에서 email 꺼내기
+        String email = jwtTokenProvider.getEmailFromToken(refreshToken);
+
+        // 3. 유저 조회
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        // 4. DB에 저장된 refreshToken 과 일치하는지 확인
+        if (!refreshToken.equals(user.getRefreshToken())) {
+            throw new RuntimeException("저장된 리프레시 토큰과 일치하지 않습니다.");
+        }
+
+        // 5. 새 토큰 발급
+        String newAccess = jwtTokenProvider.createAccessToken(
+                user.getEmail(),
+                user.getRole().name()
+        );
+        String newRefresh = jwtTokenProvider.createRefreshToken(
+                user.getEmail(),
+                user.getRole().name()
+        );
+
+        // 6. 새 refresh 토큰 저장
         user.setRefreshToken(newRefresh);
 
         return new LoginResponse(newAccess, newRefresh);
     }
 
+    // 로그아웃 : refreshToken 제거
     @Transactional
     public void logout(String email) {
         User user = userRepository.findByEmail(email)
@@ -79,6 +114,7 @@ public class UserService {
         user.setRefreshToken(null);
     }
 
+    // 내 정보 조회
     @Transactional(readOnly = true)
     public UserResponse getMyInfo(String email) {
         User user = userRepository.findByEmail(email)

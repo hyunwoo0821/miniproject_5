@@ -13,28 +13,47 @@ public class AuthController {
 
     private final UserService userService;
 
+    /**
+     * 회원가입
+     * POST /auth/signup
+     */
     @PostMapping("/signup")
     public void signup(@RequestBody SignupRequest request) {
         userService.signup(request);
     }
 
+    /**
+     * 로그인
+     * POST /auth/login
+     */
     @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginRequest request) {
         return userService.login(request);
     }
 
-    // refresh token 이용해서 access token 재발급
+    /**
+     * 토큰 재발급
+     * POST /auth/reissue
+     * 헤더: Refresh-Token: {refreshToken}
+     */
     @PostMapping("/reissue")
     public LoginResponse reissue(@RequestHeader("Refresh-Token") String refreshToken) {
         return userService.reissue(refreshToken);
     }
 
-    // JWT 써서 현재 로그인한 유저 정보
+    /**
+     * 내 정보 조회
+     * GET /auth/me
+     */
     @GetMapping("/me")
     public UserResponse me(@AuthenticationPrincipal org.springframework.security.core.userdetails.User user) {
         return userService.getMyInfo(user.getUsername());
     }
 
+    /**
+     * 로그아웃
+     * POST /auth/logout
+     */
     @PostMapping("/logout")
     public void logout(@AuthenticationPrincipal org.springframework.security.core.userdetails.User user) {
         userService.logout(user.getUsername());
