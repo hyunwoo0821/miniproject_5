@@ -138,6 +138,7 @@ export default function BookUpdate() {
                         onClick={() => {
                             nav("/book/update/ai-book-cover", {
                             state: {
+                                bookId: id, 
                                 bookTitle: form.bookTitle,          // 현재 도서 제목
                                 content: form.content,      // 현재 도서 내용
                                 author: form.author,        // 현재 작가명

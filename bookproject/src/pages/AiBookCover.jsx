@@ -11,7 +11,7 @@ function AiBookCover() {
   const location = useLocation();
   const navigate = useNavigate();
   const fromState = location.state || {};
-
+  const bookId = fromState.bookId;
   // 1. 비활성화된 입력 데이터 (BookUpdate에서 넘어온 값 우선 사용)
   const [bookInfo] = useState({
     bookTitle: fromState.bookTitle,
@@ -147,9 +147,11 @@ function AiBookCover() {
 
   // 썸네일 클릭 시 "적용"
   const handleSelectImage = (imgUrl) => {
-    setSelectedImage(imgUrl);
+   setSelectedImage(imgUrl);
     // >> BookUpdate에서 참고할 수 있도록 localStorage에 저장 (URL 그대로)
-    localStorage.setItem("aiSelectedCover", imgUrl);
+   if (bookId) {
+     localStorage.setItem(`aiSelectedCover_${bookId}`, imgUrl);
+   }
   };
 
   // 썸네일 삭제
@@ -401,7 +403,9 @@ function AiBookCover() {
                   return;
                 }
                 // 한 번 더 저장 (안전장치) - URL 그대로
-                localStorage.setItem("aiSelectedCover", selectedImage);
+                if (bookId) {
+                  localStorage.setItem(`aiSelectedCover_${bookId}`, selectedImage);
+                }
                 navigate(-1); // 바로 이전 페이지(도서 수정)로 돌아가기
               }}
             >
