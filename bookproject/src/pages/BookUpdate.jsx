@@ -86,6 +86,14 @@ export default function BookUpdate() {
         } catch (err) {
             console.error("도서 수정 실패:", err);
             alert("수정 중 오류가 발생했습니다.");
+            if (form.bookImageUrl && form.bookImageUrl.length > 1024) {
+               alert(
+                 `책 표지 URL이 너무 깁니다.\n\n` +
+                 `현재 길이: ${form.bookImageUrl.length}자\n` +
+                 `허용 최대: 1000자\n\n` +
+                 `▶ URL을 줄이거나, 다른 방식(직접 업로드 등)으로 저장해 주세요.`
+                   );            
+                }
         }
     };
 
@@ -140,17 +148,6 @@ export default function BookUpdate() {
                         fullWidth
                         sx={{ py: 1.4, mb: 3 }}
                         onClick={() => {
-//                            nav("/book/update/ai-book-cover", {
-//                             state: {
-//                                 title: form.bookTitle,         // 현재 도서 제목 <-- 내가 작성한 코드
-//                                 bookId: id,
-//                                 bookTitle: form.bookTitle,          // 현재 도서 제목 <-- ai쪽 작성 코드
-//                                 content: form.content,      // 현재 도서 내용
-//                                 author: form.author,        // 현재 작가명
-//                                 category: form.category     // 현재 도서 카테고리
-//                             }
-//                            });
-                                // ai쪽 코드
                             nav("/book/update/ai-book-cover", {
                               state: {
                                 bookId: id,
