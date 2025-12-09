@@ -1,15 +1,15 @@
 // 2025-12-05 16:34 형택님 마지막 수정으로 복구
 
 import { useState, useEffect } from "react";
-import { Box, Typography, TextField, MenuItem, Button } from "@mui/material";
+import { Box, Typography, TextField, MenuItem, Button, Dialog, DialogTitle, DialogContent, IconButton } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
 import PersonIcon from "@mui/icons-material/Person";
+import CloseIcon from "@mui/icons-material/Close";
 import { updateBook, fetchBookDetail } from "../api/bookApi";
 
 // 🔽 추가
-import { Dialog, DialogTitle, DialogContent } from "@mui/material";
 import AiBookCover from "./AiBookCover";
 
 export default function BookUpdate() {
@@ -101,7 +101,7 @@ export default function BookUpdate() {
                       <img
                         src={form.bookImageUrl}
                         alt={form.bookTitle}
-                        style={{ width: "300px", height: "420px", borderRadius: "6px" }}
+                        style={{ width:"300px", height:"420px", borderRadius:"6px" }}
                       />
                     ) : (
                       <Typography color="#999">이미지 없음</Typography>
@@ -131,7 +131,7 @@ export default function BookUpdate() {
                     <Button
                         variant="outlined"
                         fullWidth
-                        sx={{ py: 1.4, mb: 3 }}
+                        sx={{ py:1.4, mb:3 }}
                         onClick={() => {
                             setOpenCover(true);   // 🔹 라우팅 대신 팝업 열기
                         }}
@@ -140,10 +140,10 @@ export default function BookUpdate() {
                     </Button>
 
                     {/* 좋아요/작성자 표시(수정불가 영역) */}
-                    <Box sx={{ opacity: 0.6, display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box sx={{ opacity:0.6, display:"flex", alignItems:"center", gap:1 }}>
                       <ThumbUpAltIcon /> {form.likes}
-                      <ThumbDownAltIcon sx={{ ml: 2 }} /> {form.dislikes}
-                      <PersonIcon sx={{ ml: 2 }} /> {form.writer}
+                      <ThumbDownAltIcon sx={{ ml:2 }} /> {form.dislikes}
+                      <PersonIcon sx={{ ml:2 }} /> {form.writer}
                     </Box>
 
                     <Typography fontSize={13} color="#666" mt={1} mb={3}>
@@ -169,10 +169,18 @@ export default function BookUpdate() {
               maxWidth="md"
               fullWidth
             >
-              <DialogTitle>AI 표지 생성하기</DialogTitle>
-              <DialogContent dividers sx={{ p: 0 }}>
+              {/* 🔹 여기: "AI 표지 생성하기" + X 버튼 같은 줄 */}
+              <DialogTitle sx={{ m:0, p:2 }}>
+                <Box sx={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                  <Typography variant="h6">AI 표지 생성하기</Typography>
+                  <IconButton size="small" onClick={() => setOpenCover(false)}>
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
+              </DialogTitle>
+
+              <DialogContent dividers sx={{ p:0 }}>
                 <AiBookCover
-                  // 팝업 모드용 props (AiBookCover 쪽에서 지원하게 해야 함)
                   bookId={id}
                   bookTitle={form.bookTitle}
                   author={form.author}
