@@ -9,7 +9,7 @@ public class BoardResponseDto {
     private final Long boardId;
     private final String title;
     private final String content;
-    private final UserResponseDto userResponseDto;
+    private final UserResponseDto user;
 
     public static BoardResponseDto of(Board board) {
         return new BoardResponseDto(
