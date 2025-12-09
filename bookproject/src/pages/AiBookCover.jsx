@@ -7,17 +7,31 @@ import {
 import { useLocation , useNavigate } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Clear";
 
-function AiBookCover() {
+function AiBookCover(props) {
+  // 🔹 팝업 모드에서 넘어오는 props (없으면 undefined)
+  const {
+    bookId: propBookId,
+    bookTitle: propBookTitle,
+    author: propAuthor,
+    content: propContent,
+    category: propCategory,
+    onSelect,
+    onClose,
+  } = props || {};
+
   const location = useLocation();
   const navigate = useNavigate();
   const fromState = location.state || {};
-  const bookId = fromState.bookId;
+
+  // 🔹 bookId / 도서 정보: props가 우선, 없으면 location.state 사용
+  const bookId = propBookId ?? fromState.bookId;
+
   // 1. 비활성화된 입력 데이터 (BookUpdate에서 넘어온 값 우선 사용)
   const [bookInfo] = useState({
-    bookTitle: fromState.bookTitle,
-    content: fromState.content,
-    author: fromState.author,
-    category: fromState.category
+    bookTitle: propBookTitle ?? fromState.bookTitle,
+    content: propContent ?? fromState.content,
+    author: propAuthor ?? fromState.author,
+    category: propCategory ?? fromState.category
   });
 
   // API Key (브라우저에서 직접 입력)
@@ -147,11 +161,17 @@ function AiBookCover() {
 
   // 썸네일 클릭 시 "적용"
   const handleSelectImage = (imgUrl) => {
-   setSelectedImage(imgUrl);
-    // >> BookUpdate에서 참고할 수 있도록 localStorage에 저장 (URL 그대로)
-   if (bookId) {
-     localStorage.setItem(`aiSelectedCover_${bookId}`, imgUrl);
-   }
+    setSelectedImage(imgUrl);
+
+    // >> BookUpdate에서 참고할 수 있도록 localStorage에 저장 (URL 그대로, 책별 key)
+    if (bookId) {
+      localStorage.setItem(`aiSelectedCover_${bookId}`, imgUrl);
+    }
+
+    // 팝업 모드일 때 즉시 부모에 반영하고 싶다면 여기서도 onSelect 호출 가능
+    if (onSelect) {
+      onSelect(imgUrl);
+    }
   };
 
   // 썸네일 삭제
@@ -165,9 +185,13 @@ function AiBookCover() {
       // 삭제한 이미지가 선택된 이미지였다면 선택 해제 + localStorage 정리
       if (removed && removed === selectedImage) {
         setSelectedImage(null);
-        const stored = localStorage.getItem("aiSelectedCover");
-        if (stored && stored === removed) {
-          localStorage.removeItem("aiSelectedCover");
+
+        if (bookId) {
+          const key = `aiSelectedCover_${bookId}`;
+          const stored = localStorage.getItem(key);
+          if (stored && stored === removed) {
+            localStorage.removeItem(key);
+          }
         }
       }
 
@@ -208,10 +232,10 @@ function AiBookCover() {
         {/* ReadOnly Section, 도서 정보 */}
         <Box sx={{ mb: 4, p: 2, bgcolor: '#f5f5f5', borderRadius: 2 }}>
           <Typography variant="h6" color="textSecondary">📖 도서 정보 (Read Only)</Typography>
-          <TextField fullWidth label="도서 제목" value={bookInfo.bookTitle} disabled margin="normal" variant="filled" />
-          <TextField fullWidth label="작가 명" value={bookInfo.author} disabled margin="normal" variant="filled" />
-          <TextField fullWidth label="카테고리" value={bookInfo.category} disabled margin="normal" variant="filled" />
-          <TextField fullWidth label="도서 내용" value={bookInfo.content} disabled multiline rows={2} margin="normal" variant="filled" />
+          <TextField fullWidth label="도서 제목" value={bookInfo.bookTitle || ""} disabled margin="normal" variant="filled" />
+          <TextField fullWidth label="작가 명" value={bookInfo.author || ""} disabled margin="normal" variant="filled" />
+          <TextField fullWidth label="카테고리" value={bookInfo.category || ""} disabled margin="normal" variant="filled" />
+          <TextField fullWidth label="도서 내용" value={bookInfo.content || ""} disabled multiline rows={2} margin="normal" variant="filled" />
         </Box>
 
         {/* AI Setting Section, 모델, 품질, 스타일, 개수 설정 */}
@@ -402,9 +426,22 @@ function AiBookCover() {
                   alert("먼저 적용할 이미지를 선택해주세요.");
                   return;
                 }
-                // 한 번 더 저장 (안전장치) - URL 그대로
-                localStorage.setItem("aiSelectedCover", selectedImage);
-                navigate(-1); // 바로 이전 페이지(도서 수정)로 돌아가기
+
+                // 한 번 더 저장 (안전장치) - 책별 key
+                if (bookId) {
+                  localStorage.setItem(`aiSelectedCover_${bookId}`, selectedImage);
+                }
+
+                // 🔹 팝업 모드: 부모 콜백 + 닫기
+                if (onSelect) {
+                  onSelect(selectedImage);
+                }
+                if (onClose) {
+                  onClose();
+                } else {
+                  // 🔹 라우팅 모드: 이전 페이지(도서 수정)로 돌아가기
+                  navigate(-1);
+                }
               }}
             >
               선택한 이미지 적용하고 돌아가기
