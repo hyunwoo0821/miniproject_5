@@ -18,10 +18,10 @@ public class JwtTokenProvider {
     private String secret;
 
     @Value("${jwt.access-expiration-ms}")
-    private long accessTokenValidity;
+    private long accessTokenValidity;   // 액세스 토큰 유효시간(ms)
 
     @Value("${jwt.refresh-expiration-ms}")
-    private long refreshTokenValidity;
+    private long refreshTokenValidity;  // 리프레시 토큰 유효시간(ms)
 
     private Key key;
 
@@ -30,6 +30,9 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
+    // ==========================
+    // 액세스 토큰 발급
+    // ==========================
     public String createAccessToken(String email, String role) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + accessTokenValidity);
@@ -43,20 +46,29 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    // ==========================
+    // 리프레시 토큰 발급
+    // ==========================
     public String createRefreshToken() {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + refreshTokenValidity);
 
         return Jwts.builder()
+                .setSubject("refresh")
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
+    // ==========================
+    // 토큰 유효성 검증
+    // ==========================
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build()
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
@@ -64,8 +76,13 @@ public class JwtTokenProvider {
         }
     }
 
+    // ==========================
+    // 토큰에서 이메일 꺼내기
+    // ==========================
     public String getEmailFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build()
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
