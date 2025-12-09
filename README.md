@@ -35,40 +35,40 @@
   │   │   ├── domain/
   │   │   ├── dto/
   │   │   ├── repository/
-  │   │   ├── service/
+  │   │   └── service/
   │   ├── book/
   │   │   ├── controller/
   │   │   ├── domain/
   │   │   ├── dto/
   │   │   ├── repository/
-  │   │   ├── service/
+  │   │   └── service/
   │   ├── config/
   │   │   ├── JwtAuthenticationFilter/
   │   │   ├── JwtTokenProvider/
   │   │   ├── SecurityConfig/
-  │   │   ├── WebConfig/
+  │   │   └── WebConfig/
   │   ├── exception/
   │   │   ├── BookNotFoundException/
   │   │   ├── CustomException/
   │   │   ├── GlobalExceptionHandler/
-  │   │   ├── UserNotFoundException/
+  │   │   └── UserNotFoundException/
   │   ├── security/
   │   │   ├── CustomUserDetails/
-  │   │   ├── CustomUserDetailsService/
+  │   │   └── CustomUserDetailsService/
   │   └── user/
   │   │   ├── controller/
   │   │   ├── dto/
   │   │   ├── entity/
   │   │   ├── repository/
-  │   │   ├── service/
+  │   │   └── service/
   ├── bookproject/       # React 기반 프론트엔드
   │   ├── api/
   │   │   ├── boardApi.js/
   │   │   ├── bookApi.js/
-  │   │   ├── replyApi.js/
+  │   │   └── replyApi.js/
   │   ├── components/
   │   │   ├── Header.jsx/
-  │   │   ├── ProtectedRoute.jsx/
+  │   │   └── ProtectedRoute.jsx/
   │   └── pages/
   │   │   ├── AiBookCover.jsx/
   │   │   ├── BoardDetail.jsx/
@@ -81,7 +81,7 @@
   │   │   ├── BookUpdate.jsx/
   │   │   ├── Login.jsx/
   │   │   ├── Main.jsx/
-  │   │   ├── Register.jsx/
+  │   │   └── Register.jsx/
   └── README.md
 ```
 
