@@ -9,13 +9,12 @@ import ClearIcon from "@mui/icons-material/Clear";
 
 function AiBookCover() {
   const location = useLocation();
-  
   const navigate = useNavigate();
   const fromState = location.state || {};
 
   // 1. 비활성화된 입력 데이터 (BookUpdate에서 넘어온 값 우선 사용)
   const [bookInfo] = useState({
-    title: fromState.title,
+    bookTitle: fromState.bookTitle,
     content: fromState.content,
     author: fromState.author,
     category: fromState.category
@@ -27,14 +26,14 @@ function AiBookCover() {
   // 2. 사용자 설정 데이터
   const [model, setModel] = useState("dall-e-3");
   const [quality, setQuality] = useState(50);
-  const [style, setStyle] = useState("Cyberpunk, Neon, Highly detailed");
-  const [numImages, setNumImages] = useState(3); // 👉 n값 (사용자 설정)
+  const [style, setStyle] = useState("fairytale");
+  const [numImages, setNumImages] = useState(1); 
 
   // 3. 결과 상태
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
-  const [generatedImages, setGeneratedImages] = useState([]); // 여러 장
-  const [selectedImage, setSelectedImage] = useState(null); // 선택된 1장
+  const [generatedImages, setGeneratedImages] = useState([]); // 여러 장 (URL 배열)
+  const [selectedImage, setSelectedImage] = useState(null);   // 선택된 1장 (URL)
 
   // --- 핵심 로직: 프론트엔드 단독 처리 ---
   const handleGenerate = async () => {
@@ -69,13 +68,13 @@ function AiBookCover() {
               {
                 role: "user",
                 content: `Create a detailed image generation prompt for a front page of book cover.
-                Book Title: '${bookInfo.title}'
+                Book Title: '${bookInfo.bookTitle}'
                 Author: '${bookInfo.author}'
                 Content Summary: '${bookInfo.content}'
                 Book Category : '${bookInfo.category}'
                 Style: '${style}'
                 Quality Level (1-100): ${quality}
-                Constraint: The image MUST visually represent the content and style. Include the text '${bookInfo.title}' and '${bookInfo.author}' seamlessly in the design if possible.`,
+                Constraint: The image MUST visually represent the content and style. Include the text '${bookInfo.bookTitle}' and '${bookInfo.author}' seamlessly in the design if possible.`,
               },
             ],
           }),
@@ -104,7 +103,7 @@ function AiBookCover() {
           prompt: generatedPrompt,
           n: 1, // DALL-E 2/3 제약 회피: 한 번에 1장씩만 요청
           size: "1024x1024",
-          response_format: "b64_json",
+          response_format: "url",   // 🔹 URL로 받기
         };
 
         if (model === "dall-e-3") {
@@ -126,7 +125,7 @@ function AiBookCover() {
         const imageData = await imageResponse.json();
         if (imageData.error) throw new Error(imageData.error.message);
 
-        const oneImg = imageData.data[0].b64_json;
+        const oneImg = imageData.data[0].url;  // 🔹 URL 문자열
         newImgs.push(oneImg);
       }
 
@@ -147,11 +146,10 @@ function AiBookCover() {
   };
 
   // 썸네일 클릭 시 "적용"
-  const handleSelectImage = (imgB64) => {
-    setSelectedImage(imgB64);
-    const dataUrl = `data:image/png;base64,${imgB64}`;
-    // >> BookUpdate에서 참고할 수 있도록 localStorage에 저장
-    localStorage.setItem("aiSelectedCover", dataUrl);
+  const handleSelectImage = (imgUrl) => {
+    setSelectedImage(imgUrl);
+    // >> BookUpdate에서 참고할 수 있도록 localStorage에 저장 (URL 그대로)
+    localStorage.setItem("aiSelectedCover", imgUrl);
   };
 
   // 썸네일 삭제
@@ -166,11 +164,8 @@ function AiBookCover() {
       if (removed && removed === selectedImage) {
         setSelectedImage(null);
         const stored = localStorage.getItem("aiSelectedCover");
-        if (stored) {
-          const dataUrl = `data:image/png;base64,${removed}`;
-          if (stored === dataUrl) {
-            localStorage.removeItem("aiSelectedCover");
-          }
+        if (stored && stored === removed) {
+          localStorage.removeItem("aiSelectedCover");
         }
       }
 
@@ -211,7 +206,7 @@ function AiBookCover() {
         {/* ReadOnly Section, 도서 정보 */}
         <Box sx={{ mb: 4, p: 2, bgcolor: '#f5f5f5', borderRadius: 2 }}>
           <Typography variant="h6" color="textSecondary">📖 도서 정보 (Read Only)</Typography>
-          <TextField fullWidth label="도서 제목" value={bookInfo.title} disabled margin="normal" variant="filled" />
+          <TextField fullWidth label="도서 제목" value={bookInfo.bookTitle} disabled margin="normal" variant="filled" />
           <TextField fullWidth label="작가 명" value={bookInfo.author} disabled margin="normal" variant="filled" />
           <TextField fullWidth label="카테고리" value={bookInfo.category} disabled margin="normal" variant="filled" />
           <TextField fullWidth label="도서 내용" value={bookInfo.content} disabled multiline rows={2} margin="normal" variant="filled" />
@@ -268,7 +263,7 @@ function AiBookCover() {
                   label="한 번에 생성할 이미지 수"
                   onChange={(e) => setNumImages(Number(e.target.value))}
                 >
-                  {[1, 2, 3, 4, 5, 6].map((n) => (
+                  {[1, 2, 3, 4].map((n) => (
                     <MenuItem key={n} value={n}>
                       {n}장
                     </MenuItem>
@@ -366,7 +361,7 @@ function AiBookCover() {
                   </Tooltip>
 
                   <img
-                    src={`data:image/png;base64,${img}`}
+                    src={img}   // 🔹 URL 바로 사용
                     alt={`Generated ${idx + 1}`}
                     style={{
                       width: "100%",
@@ -380,14 +375,14 @@ function AiBookCover() {
           </Box>
         )}
 
-        {/* 선택된 이미지 크게 보여주기 */}        {/* 선택된 이미지 크게 보여주기 */}
+        {/* 선택된 이미지 크게 보여주기 */}
         {selectedImage && (
           <Box sx={{ mt: 5, textAlign: "center" }}>
             <Typography variant="h5" gutterBottom color="success.main">
               ✅ 선택된 표지 (적용됨)
             </Typography>
             <img
-              src={`data:image/png;base64,${selectedImage}`}
+              src={selectedImage}   // 🔹 URL 바로 사용
               alt="Selected Cover"
               style={{
                 maxWidth: "100%",
@@ -405,9 +400,8 @@ function AiBookCover() {
                   alert("먼저 적용할 이미지를 선택해주세요.");
                   return;
                 }
-                // 혹시 모르니 한 번 더 저장 (handleSelectImage에서 이미 저장되지만 안전장치)
-                const dataUrl = `data:image/png;base64,${selectedImage}`;
-                localStorage.setItem("aiSelectedCover", dataUrl);
+                // 한 번 더 저장 (안전장치) - URL 그대로
+                localStorage.setItem("aiSelectedCover", selectedImage);
                 navigate(-1); // 바로 이전 페이지(도서 수정)로 돌아가기
               }}
             >
