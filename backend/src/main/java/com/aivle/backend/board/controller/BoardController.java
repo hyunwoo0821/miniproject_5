@@ -40,3 +40,4 @@ public class BoardController {
         return boardService.findBoardAll(pageable);
     }
 }
+ 
