@@ -1,0 +1,15 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - echo "프론트엔드 프로젝트로 이동"
+      - cd bookproject
+      - npm install
+
+  build:
+    commands:
+      - echo "유닛 테스트 실행"
+      - npm test
