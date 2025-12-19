@@ -17,6 +17,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { createBook } from "../api/bookApi";
 import axios from "axios";
 import AiBookCover from "./AiBookCover";
+import { instance } from "../api/axios";
 
 export default function BookCreate() {
   const nav = useNavigate();
@@ -32,16 +33,15 @@ export default function BookCreate() {
 
     console.log("🔑 accessToken:", token);
 
-    axios
-      .get("auth/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    instance
+      .get("/auth/me")
       .then((res) => {
         console.log("👤 로그인 유저:", res.data);
         setUserId(res.data.id);
       })
-      .catch((err) => console.error("유저 정보 조회 실패:", err));
-  }, []);
+      .catch((err) => {
+        console.error("유저 정보 조회 실패:", err);
+  });
 
   const [form, setForm] = useState({
     title: "",
