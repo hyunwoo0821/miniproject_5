@@ -18,7 +18,7 @@ export default function BoardWrite(){
 
         console.log("🔑 accessToken:", token);
 
-        axios.get("http://localhost:8080/auth/me", {
+        axios.get("/auth/me", {
             headers: { Authorization: `Bearer ${token}` },
         })
             .then(res => {

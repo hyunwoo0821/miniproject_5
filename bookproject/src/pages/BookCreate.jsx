@@ -33,7 +33,7 @@ export default function BookCreate() {
     console.log("🔑 accessToken:", token);
 
     axios
-      .get("http://localhost:8080/auth/me", {
+      .get("auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
