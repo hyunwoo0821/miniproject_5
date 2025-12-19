@@ -1,5 +1,5 @@
-describe('CI Always Pass Test', () => {
-  test('this test always passes', () => {
-    expect(true).toBe(true);
+describe('CI Force Fail Test', () => {
+  test('this test always fails', () => {
+    expect(true).toBe(false); // ❌ 무조건 실패
   });
 });
