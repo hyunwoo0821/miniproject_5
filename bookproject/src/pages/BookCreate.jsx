@@ -81,6 +81,11 @@ export default function BookCreate() {
         bookImageUrl: form.bookImageUrl,
       };
 
+      if (!userId) {
+  alert("로그인 정보 확인 중입니다. 잠시 후 다시 시도해주세요.");
+  return;
+}
+
       await createBook(userId, data);
 
       alert("도서 등록 성공!");

@@ -20,9 +20,10 @@ instance.interceptors.request.use(
 
 export default instance;
 
+
 // 도서 등록
-export const createBook = async (userId, data) => {
-    const response = await instance.post(`/api/books?userId=${userId}`, data);
+export const createBook = async (data) => {
+    const response = await instance.post("/api/books", data);
     return response.data;
 };
 
