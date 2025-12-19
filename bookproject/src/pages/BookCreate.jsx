@@ -41,7 +41,8 @@ export default function BookCreate() {
       })
       .catch((err) => {
         console.error("유저 정보 조회 실패:", err);
-  });
+  })
+});
 
   const [form, setForm] = useState({
     title: "",
@@ -80,6 +81,7 @@ export default function BookCreate() {
         category: form.category,
         bookImageUrl: form.bookImageUrl,
       };
+
 
       await createBook(userId, data);
 
