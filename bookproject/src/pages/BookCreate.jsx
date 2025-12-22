@@ -81,7 +81,7 @@ export default function BookCreate() {
         bookImageUrl: form.bookImageUrl,
       };
 
-      await createBook(userId, data);
+      await createBook(data);
 
       alert("도서 등록 성공!");
       nav("/books");
