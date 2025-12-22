@@ -24,7 +24,11 @@ public class BookController {
 
     // 책 등록 - POST
     @PostMapping
-    public Book insertBook(@RequestParam Long userId, @RequestBody BookRequestDto dto) {
+    public Book insertBook(
+            @RequestBody BookRequestDto dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUser().getId(); // JWT에서 userId 추출
         return bookService.insertBook(userId, dto);
     }
 
