@@ -38,16 +38,29 @@ public class SecurityConfig {
 
                 // 요청별 권한 설정
                 .authorizeHttpRequests(auth -> auth
+                        // ⭐ 프론트 정적 리소스 허용 (이거 없으면 사이트 안 열림)
+                        .requestMatchers(
+                                "/",
+                                "/index.html",
+                                "/assets/**",
+                                "/favicon.ico"
+                        ).permitAll()
+
+                        // 인증 관련 API
                         .requestMatchers(
                                 "/auth/signup",
                                 "/auth/login",
-                                "/auth/reissue",
-                                "/h2-console/**"
+                                "/auth/reissue"
                         ).permitAll()
+
+                        // 로그인 상태 확인
                         .requestMatchers("/auth/me").authenticated()
-                        // ✅ 로그인한 사용자라면 /api/** 요청 허용
+
+                        // API 권한 설정
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/books/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
-                        // ❌ 그 외는 모두 차단
+
+                        // 그 외는 차단
                         .anyRequest().denyAll()
                 )
 
