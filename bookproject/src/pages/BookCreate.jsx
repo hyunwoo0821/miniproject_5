@@ -193,6 +193,7 @@ export default function BookCreate() {
 
       {/* 등록 버튼 */}
       <Button
+        type="button" 
         variant="contained"
         size="large"
         fullWidth
