@@ -15,5 +15,6 @@ spec:
       containers:
         - name: backend
           image: 416225317325.dkr.ecr.us-east-2.amazonaws.com/mp-backend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
