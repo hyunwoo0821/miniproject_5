@@ -101,6 +101,14 @@ public class BookController {
         }
     }
 
+    @GetMapping("/")
+    public String home() {
+        System.out.println("=== 🚀 진짜 진짜 최종 버전 V6 🚀 ===");  // <--- 이 줄을 추가!
+        return "Backend V6 is running!";
+    }
+
+    
+
 //    @PostMapping("/{bookId}/like")
 //    public ResponseEntity<Book> toggleLike(
 //            @PathVariable Long bookId,
