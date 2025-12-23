@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-project-ingress
+  annotations:
+    # AWS Load Balancer Controller가 이 Ingress를 인식하게 함
+    kubernetes.io/ingress.class: alb
+    # 외부 인터넷에서 접속 가능하게 설정
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    # 타겟을 IP 모드로 지정 (EKS Fargate나 CNI 사용 시 권장)
+    alb.ingress.kubernetes.io/target-type: ip
+    # 헬스체크 경로 설정 (필요 시 수정, 보통 / 또는 /api/health)
+    alb.ingress.kubernetes.io/healthcheck-path: /
+spec:
+  rules:
+    - http:
+        paths:
+          # 1. 백엔드 API 요청 (/api 로 시작하는 모든 요청)
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-service  # 현재 실행 중인 백엔드 서비스 이름
+                port:
+                  number: 8080         # 백엔드 서비스 포트
+          # 2. 프론트엔드 요청 (그 외 나머지 모든 요청)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service # 현재 실행 중인 프론트엔드 서비스 이름
+                port:
+                  number: 80           # 프론트엔드 서비스 포트
